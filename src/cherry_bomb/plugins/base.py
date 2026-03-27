@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from cherry_bomb.models.schemas import ToolDefinition, ToolResult
+if TYPE_CHECKING:
+    from cherry_bomb.models.schemas import ToolDefinition, ToolResult
 
 
 class ToolPlugin(ABC):

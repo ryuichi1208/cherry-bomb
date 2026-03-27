@@ -1,14 +1,16 @@
 """Claude API Tool Useオーケストレーション"""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import anthropic
 import structlog
 
 from cherry_bomb.agent.prompts import build_system_prompt
 from cherry_bomb.agent.tool_router import ApprovalRequiredError, ToolRouter
-from cherry_bomb.config import Settings
-from cherry_bomb.plugins.registry import PluginRegistry
+
+if TYPE_CHECKING:
+    from cherry_bomb.config import Settings
+    from cherry_bomb.plugins.registry import PluginRegistry
 
 logger = structlog.get_logger()
 
@@ -30,7 +32,7 @@ class AgentOrchestrator:
         conversation_history: list[dict[str, Any]] | None = None,
         additional_context: str | None = None,
         max_turns: int = 10,
-    ) -> "AgentResponse":
+    ) -> AgentResponse:
         """エージェントループを実行する。
 
         Args:
@@ -55,8 +57,8 @@ class AgentOrchestrator:
             response = await self._client.messages.create(
                 model=self._settings.CLAUDE_MODEL,
                 system=system_prompt,
-                messages=messages,
-                tools=tools if tools else anthropic.NOT_GIVEN,
+                messages=messages,  # type: ignore[arg-type]
+                tools=tools if tools else anthropic.NOT_GIVEN,  # type: ignore[arg-type]
                 max_tokens=4096,
             )
 
