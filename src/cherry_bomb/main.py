@@ -1,7 +1,7 @@
 """FastAPI application + Slack Bolt integration"""
 
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
 
 import structlog
 from fastapi import FastAPI, Request, Response
@@ -12,6 +12,9 @@ from cherry_bomb.agent.orchestrator import AgentOrchestrator
 from cherry_bomb.config import Settings
 from cherry_bomb.interfaces.slack.handler import register_handlers
 from cherry_bomb.plugins.registry import PluginRegistry
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 logger = structlog.get_logger()
 
@@ -37,7 +40,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     slack_handler = AsyncSlackRequestHandler(slack_app)
 
     @asynccontextmanager
-    async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         logger.info("cherry_bomb_starting", model=settings.CLAUDE_MODEL)
         yield
         logger.info("cherry_bomb_stopping")

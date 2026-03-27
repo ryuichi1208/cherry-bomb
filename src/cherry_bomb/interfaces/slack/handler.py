@@ -1,12 +1,16 @@
 """Slack Bolt event handler"""
 
 import contextlib
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 import structlog
-from slack_bolt.async_app import AsyncApp
-from slack_sdk.web.async_client import AsyncWebClient
 
-from cherry_bomb.agent.orchestrator import AgentOrchestrator
+if TYPE_CHECKING:
+    from slack_bolt.async_app import AsyncApp
+    from slack_sdk.web.async_client import AsyncWebClient
+
+    from cherry_bomb.agent.orchestrator import AgentOrchestrator
 
 logger = structlog.get_logger()
 
@@ -15,7 +19,7 @@ def register_handlers(app: AsyncApp, orchestrator: AgentOrchestrator) -> None:
     """Slack Bolt app にイベントハンドラを登録する"""
 
     @app.event("app_mention")
-    async def handle_mention(event: dict, say: callable, client: AsyncWebClient) -> None:
+    async def handle_mention(event: dict[str, Any], say: Callable[..., Any], client: AsyncWebClient) -> None:
         """メンション時にエージェントを起動する"""
         user = event.get("user", "unknown")
         text = event.get("text", "")
@@ -70,6 +74,6 @@ def register_handlers(app: AsyncApp, orchestrator: AgentOrchestrator) -> None:
                 )
 
     @app.event("message")
-    async def handle_message(event: dict) -> None:
+    async def handle_message(event: dict[str, Any]) -> None:
         """一般メッセージは無視する（メンションのみ応答）"""
         pass

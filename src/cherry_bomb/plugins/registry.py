@@ -1,4 +1,7 @@
-from cherry_bomb.plugins.base import ToolPlugin
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cherry_bomb.plugins.base import ToolPlugin
 
 
 class ToolNotFoundError(Exception):

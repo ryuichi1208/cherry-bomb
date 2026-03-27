@@ -1,11 +1,13 @@
 """Claude API tool_useレスポンスのプラグインへのルーティング"""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from cherry_bomb.models.schemas import ToolResult
-from cherry_bomb.plugins.registry import PluginRegistry
+
+if TYPE_CHECKING:
+    from cherry_bomb.plugins.registry import PluginRegistry
 
 logger = structlog.get_logger()
 
