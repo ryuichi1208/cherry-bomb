@@ -1,7 +1,6 @@
 """Application configuration using pydantic-settings."""
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
@@ -26,12 +25,12 @@ class Settings(BaseSettings):
     # Slack
     SLACK_BOT_TOKEN: SecretStr
     SLACK_SIGNING_SECRET: SecretStr
-    SLACK_APP_TOKEN: Optional[SecretStr] = None
+    SLACK_APP_TOKEN: SecretStr | None = None
 
     # AWS
     AWS_REGION: str = "ap-northeast-1"
     DYNAMODB_TABLE_NAME: str = "cherry-bomb-approvals"
-    SQS_QUEUE_URL: Optional[str] = None
+    SQS_QUEUE_URL: str | None = None
 
     # Logging
     LOG_LEVEL: str = "INFO"

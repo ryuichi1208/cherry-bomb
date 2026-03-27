@@ -1,7 +1,8 @@
 """Claude API tool_useレスポンスのプラグインへのルーティング"""
 
-import structlog
 from typing import Any
+
+import structlog
 
 from cherry_bomb.models.schemas import ToolResult
 from cherry_bomb.plugins.registry import PluginRegistry

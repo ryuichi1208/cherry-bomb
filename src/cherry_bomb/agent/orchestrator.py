@@ -1,12 +1,13 @@
 """Claude API Tool Useオーケストレーション"""
 
-import anthropic
-import structlog
 from typing import Any
 
-from cherry_bomb.config import Settings
+import anthropic
+import structlog
+
 from cherry_bomb.agent.prompts import build_system_prompt
-from cherry_bomb.agent.tool_router import ToolRouter, ApprovalRequired
+from cherry_bomb.agent.tool_router import ApprovalRequired, ToolRouter
+from cherry_bomb.config import Settings
 from cherry_bomb.plugins.registry import PluginRegistry
 
 logger = structlog.get_logger()

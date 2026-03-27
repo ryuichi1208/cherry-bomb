@@ -1,4 +1,3 @@
-from cherry_bomb.models.schemas import ToolDefinition
 from cherry_bomb.plugins.base import ToolPlugin
 
 

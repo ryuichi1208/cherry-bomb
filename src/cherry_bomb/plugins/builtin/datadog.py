@@ -1,10 +1,11 @@
 """Datadog読み取りプラグイン"""
 
-import structlog
 from typing import Any
 
-from cherry_bomb.plugins.base import ToolPlugin
+import structlog
+
 from cherry_bomb.models.schemas import ToolDefinition, ToolParameterProperty, ToolParameters, ToolResult
+from cherry_bomb.plugins.base import ToolPlugin
 
 logger = structlog.get_logger()
 
@@ -144,7 +145,7 @@ class DatadogPlugin(ToolPlugin):
     async def _query_metrics(self, params: dict[str, Any]) -> ToolResult:
         """メトリクスクエリを実行する（datadog-api-clientを使用）"""
         try:
-            from datadog_api_client import Configuration, ApiClient
+            from datadog_api_client import ApiClient, Configuration
             from datadog_api_client.v1.api.metrics_api import MetricsApi
 
             config = Configuration()
@@ -192,7 +193,7 @@ class DatadogPlugin(ToolPlugin):
     async def _search_logs(self, params: dict[str, Any]) -> ToolResult:
         """ログ検索を実行する"""
         try:
-            from datadog_api_client import Configuration, ApiClient
+            from datadog_api_client import ApiClient, Configuration
             from datadog_api_client.v2.api.logs_api import LogsApi
             from datadog_api_client.v2.model.logs_list_request import LogsListRequest
             from datadog_api_client.v2.model.logs_list_request_page import LogsListRequestPage
@@ -248,7 +249,7 @@ class DatadogPlugin(ToolPlugin):
     async def _list_monitors(self, params: dict[str, Any]) -> ToolResult:
         """モニター一覧を取得する"""
         try:
-            from datadog_api_client import Configuration, ApiClient
+            from datadog_api_client import ApiClient, Configuration
             from datadog_api_client.v1.api.monitors_api import MonitorsApi
 
             config = Configuration()
@@ -290,7 +291,7 @@ class DatadogPlugin(ToolPlugin):
     async def _get_monitor(self, params: dict[str, Any]) -> ToolResult:
         """特定のモニター詳細を取得する"""
         try:
-            from datadog_api_client import Configuration, ApiClient
+            from datadog_api_client import ApiClient, Configuration
             from datadog_api_client.v1.api.monitors_api import MonitorsApi
 
             config = Configuration()

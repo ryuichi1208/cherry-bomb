@@ -1,15 +1,15 @@
 """FastAPI application + Slack Bolt integration"""
 
-import structlog
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
+import structlog
 from fastapi import FastAPI, Request, Response
-from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
+from slack_bolt.async_app import AsyncApp
 
-from cherry_bomb.config import Settings
 from cherry_bomb.agent.orchestrator import AgentOrchestrator
+from cherry_bomb.config import Settings
 from cherry_bomb.interfaces.slack.handler import register_handlers
 from cherry_bomb.plugins.registry import PluginRegistry
 

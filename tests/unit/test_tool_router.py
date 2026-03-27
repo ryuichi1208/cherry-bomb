@@ -1,9 +1,10 @@
-import pytest
 from typing import Any
 from unittest.mock import AsyncMock
 
+import pytest
+
 from cherry_bomb.agent.tool_router import ApprovalRequired, ToolRouter
-from cherry_bomb.models.schemas import ToolDefinition, ToolParameters, ToolParameterProperty, ToolResult
+from cherry_bomb.models.schemas import ToolDefinition, ToolParameterProperty, ToolParameters, ToolResult
 from cherry_bomb.plugins.base import ToolPlugin
 from cherry_bomb.plugins.registry import PluginRegistry, ToolNotFoundError
 

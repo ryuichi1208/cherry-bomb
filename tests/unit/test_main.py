@@ -1,6 +1,6 @@
 """Tests for FastAPI application entry point"""
 
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient

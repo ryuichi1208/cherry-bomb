@@ -1,11 +1,12 @@
 """DatadogPluginのユニットテスト"""
 
-import pytest
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from cherry_bomb.plugins.builtin.datadog import DatadogPlugin
+import pytest
+
 from cherry_bomb.models.schemas import ToolDefinition
+from cherry_bomb.plugins.builtin.datadog import DatadogPlugin
 
 
 @pytest.fixture

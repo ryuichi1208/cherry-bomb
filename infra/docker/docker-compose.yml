@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  cherry-bomb:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../../.env
+    environment:
+      - LOG_FORMAT=console
+    volumes:
+      - ../../src:/app/src  # ホットリロード用
+    command: >
+      uv run uvicorn cherry_bomb.main:create_app
+      --factory
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --reload-dir /app/src
