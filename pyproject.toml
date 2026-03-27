@@ -19,9 +19,11 @@ dependencies = [
     "typer>=0.15.0",
     "httpx>=0.28.0",
     "aiohttp>=3.13.3",
+    "aiosqlite>=0.20.0",
 ]
 
 [project.optional-dependencies]
+mcp = ["mcp>=1.26.0"]
 plugins-datadog = ["datadog-api-client>=2.32.0"]
 plugins-pagerduty = ["pdpyras>=5.2.0"]
 plugins-kubernetes = ["kubernetes>=31.0.0"]
@@ -55,6 +57,10 @@ plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 module = "datadog_api_client.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mcp.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

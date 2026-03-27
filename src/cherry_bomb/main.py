@@ -10,7 +10,9 @@ from slack_bolt.async_app import AsyncApp
 
 from cherry_bomb.agent.orchestrator import AgentOrchestrator
 from cherry_bomb.config import Settings
+from cherry_bomb.decision.store import SQLiteDecisionStore
 from cherry_bomb.interfaces.slack.handler import register_handlers
+from cherry_bomb.plugins.builtin.decision import DecisionPlugin
 from cherry_bomb.plugins.registry import PluginRegistry
 
 if TYPE_CHECKING:
@@ -32,8 +34,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     if settings is None:
         settings = Settings()
 
+    decision_store = SQLiteDecisionStore(db_path=settings.DECISION_DB_PATH)
+
     registry = PluginRegistry()
-    orchestrator = AgentOrchestrator(settings=settings, registry=registry)
+    registry.register(DecisionPlugin(store=decision_store))
+
+    orchestrator = AgentOrchestrator(
+        settings=settings, registry=registry, decision_store=decision_store
+    )
 
     slack_app = create_slack_app(settings)
     register_handlers(slack_app, orchestrator)
@@ -42,7 +50,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         logger.info("cherry_bomb_starting", model=settings.CLAUDE_MODEL)
+        await decision_store.initialize()
         yield
+        await decision_store.close()
         logger.info("cherry_bomb_stopping")
 
     fastapi_app = FastAPI(
