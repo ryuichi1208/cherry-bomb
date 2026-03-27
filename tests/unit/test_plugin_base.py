@@ -28,9 +28,7 @@ class DummyPlugin(ToolPlugin):
                 name="dummy_read",
                 description="Read something",
                 input_schema=ToolParameters(
-                    properties={
-                        "id": ToolParameterProperty(type="string", description="ID")
-                    },
+                    properties={"id": ToolParameterProperty(type="string", description="ID")},
                     required=["id"],
                 ),
             ),

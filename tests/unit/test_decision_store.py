@@ -109,9 +109,7 @@ class TestSQLiteDecisionStore:
 
     async def test_save_overwrites_existing(self, store: SQLiteDecisionStore) -> None:
         await store.save(_make_record(session_id="s1"))
-        await store.save(
-            _make_record(session_id="s1", user_message="更新されたメッセージ")
-        )
+        await store.save(_make_record(session_id="s1", user_message="更新されたメッセージ"))
 
         result = await store.get("s1")
         assert result is not None

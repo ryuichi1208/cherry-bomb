@@ -271,9 +271,7 @@ class TestExtractText:
         assert AgentOrchestrator._extract_text(response) == "hello"
 
     def test_multiple_text_blocks(self) -> None:
-        response = FakeResponse(
-            content=[FakeTextBlock(text="line1"), FakeTextBlock(text="line2")]
-        )
+        response = FakeResponse(content=[FakeTextBlock(text="line1"), FakeTextBlock(text="line2")])
         assert AgentOrchestrator._extract_text(response) == "line1\nline2"
 
     def test_mixed_blocks(self) -> None:
@@ -287,9 +285,7 @@ class TestExtractText:
         assert AgentOrchestrator._extract_text(response) == "before tool\nafter tool"
 
     def test_no_text_blocks(self) -> None:
-        response = FakeResponse(
-            content=[FakeToolUseBlock(name="test", id="t1")]
-        )
+        response = FakeResponse(content=[FakeToolUseBlock(name="test", id="t1")])
         assert AgentOrchestrator._extract_text(response) == ""
 
 

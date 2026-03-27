@@ -34,9 +34,7 @@ class AgentOrchestrator:
         self._registry = registry
         self._tool_router = ToolRouter(registry)
         self._decision_store = decision_store
-        self._client = anthropic.AsyncAnthropic(
-            api_key=settings.ANTHROPIC_API_KEY.get_secret_value()
-        )
+        self._client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY.get_secret_value())
 
     async def run(
         self,
@@ -94,8 +92,7 @@ class AgentOrchestrator:
                 return AgentResponse(
                     text=text,
                     pending_approvals=pending_approvals,
-                    messages=messages
-                    + [{"role": "assistant", "content": response.content}],
+                    messages=messages + [{"role": "assistant", "content": response.content}],
                 )
 
             if response.stop_reason == "tool_use":

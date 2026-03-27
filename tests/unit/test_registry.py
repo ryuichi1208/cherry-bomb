@@ -42,9 +42,7 @@ def _make_tool(name: str) -> ToolDefinition:
         name=name,
         description=f"Tool {name}",
         input_schema=ToolParameters(
-            properties={
-                "input": ToolParameterProperty(type="string", description="Input")
-            },
+            properties={"input": ToolParameterProperty(type="string", description="Input")},
         ),
     )
 

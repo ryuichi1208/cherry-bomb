@@ -24,6 +24,7 @@ def mock_app():
         def decorator(func):
             handlers[event_type] = func
             return func
+
         return decorator
 
     app.event = event_decorator

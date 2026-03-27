@@ -174,7 +174,7 @@ class DatadogPlugin(ToolPlugin):
                     if values:
                         summaries.append(
                             f"- {s.get('scope', 'unknown')}: "
-                            f"avg={sum(values)/len(values):.2f}, "
+                            f"avg={sum(values) / len(values):.2f}, "
                             f"min={min(values):.2f}, max={max(values):.2f}, "
                             f"points={len(values)}"
                         )
@@ -276,9 +276,7 @@ class DatadogPlugin(ToolPlugin):
 
             entries = []
             for m in monitors[:20]:
-                entries.append(
-                    f"- [{m.get('overall_state', '?')}] {m.get('name', '?')} (ID: {m.get('id', '?')})"
-                )
+                entries.append(f"- [{m.get('overall_state', '?')}] {m.get('name', '?')} (ID: {m.get('id', '?')})")
 
             return ToolResult(
                 tool_use_id="",

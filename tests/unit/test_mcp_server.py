@@ -3,11 +3,14 @@
 from datetime import UTC, datetime
 
 import pytest
-from mcp.server.fastmcp import FastMCP
 
-from cherry_bomb.decision.store import SQLiteDecisionStore
-from cherry_bomb.interfaces.mcp.server import create_mcp_server
-from cherry_bomb.models.schemas import DecisionRecord, TurnAction, TurnRecord
+pytest.importorskip("mcp", reason="mcp package not installed")
+
+from mcp.server.fastmcp import FastMCP  # noqa: E402
+
+from cherry_bomb.decision.store import SQLiteDecisionStore  # noqa: E402
+from cherry_bomb.interfaces.mcp.server import create_mcp_server  # noqa: E402
+from cherry_bomb.models.schemas import DecisionRecord, TurnAction, TurnRecord  # noqa: E402
 
 
 @pytest.fixture
@@ -70,9 +73,7 @@ class TestMcpTools:
         assert "decision_search" in names
         assert "decision_get" in names
 
-    async def test_decision_search_with_results(
-        self, mcp_server: FastMCP, store: SQLiteDecisionStore
-    ) -> None:
+    async def test_decision_search_with_results(self, mcp_server: FastMCP, store: SQLiteDecisionStore) -> None:
         await store.save(_make_record(session_id="s1", user_message="CPUの状態を教えて"))
 
         result = await mcp_server.call_tool("decision_search", {"query": "CPU"})
@@ -80,16 +81,12 @@ class TestMcpTools:
         assert "s1" in text
         assert "CPU" in text
 
-    async def test_decision_search_no_results(
-        self, mcp_server: FastMCP, store: SQLiteDecisionStore
-    ) -> None:
+    async def test_decision_search_no_results(self, mcp_server: FastMCP, store: SQLiteDecisionStore) -> None:
         result = await mcp_server.call_tool("decision_search", {"query": "nonexistent"})
         text = _extract_text(result)
         assert "見つかりません" in text
 
-    async def test_decision_get_with_result(
-        self, mcp_server: FastMCP, store: SQLiteDecisionStore
-    ) -> None:
+    async def test_decision_get_with_result(self, mcp_server: FastMCP, store: SQLiteDecisionStore) -> None:
         await store.save(_make_record(session_id="sess-001"))
 
         result = await mcp_server.call_tool("decision_get", {"session_id": "sess-001"})
@@ -97,9 +94,7 @@ class TestMcpTools:
         assert "sess-001" in text
         assert "datadog_query_metrics" in text
 
-    async def test_decision_get_not_found(
-        self, mcp_server: FastMCP, store: SQLiteDecisionStore
-    ) -> None:
+    async def test_decision_get_not_found(self, mcp_server: FastMCP, store: SQLiteDecisionStore) -> None:
         result = await mcp_server.call_tool("decision_get", {"session_id": "nonexistent"})
         text = _extract_text(result)
         assert "見つかりません" in text

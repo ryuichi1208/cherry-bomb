@@ -25,7 +25,7 @@ jobs:
           allow-prereleases: true
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --extra dev --extra mcp
 
       - name: Ruff check
         run: uv run ruff check src/ tests/
@@ -48,7 +48,7 @@ jobs:
           allow-prereleases: true
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --extra dev --extra mcp
 
       - name: Run tests
         run: uv run pytest tests/ -v --cov=src/cherry_bomb --cov-report=term-missing
@@ -68,7 +68,7 @@ jobs:
           allow-prereleases: true
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --extra dev --extra mcp
 
       - name: Mypy
         run: uv run mypy src/

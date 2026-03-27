@@ -39,9 +39,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     registry = PluginRegistry()
     registry.register(DecisionPlugin(store=decision_store))
 
-    orchestrator = AgentOrchestrator(
-        settings=settings, registry=registry, decision_store=decision_store
-    )
+    orchestrator = AgentOrchestrator(settings=settings, registry=registry, decision_store=decision_store)
 
     slack_app = create_slack_app(settings)
     register_handlers(slack_app, orchestrator)

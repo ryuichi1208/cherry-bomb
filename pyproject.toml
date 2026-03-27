@@ -63,6 +63,10 @@ ignore_missing_imports = true
 module = "mcp.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "cherry_bomb.interfaces.mcp.server"
+disallow_untyped_decorators = false
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

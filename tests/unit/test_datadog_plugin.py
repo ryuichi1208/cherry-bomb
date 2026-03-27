@@ -139,9 +139,7 @@ class TestImportError:
     async def test_query_metrics_import_error(self, plugin):
         """datadog-api-clientがない場合にImportErrorを適切にハンドルする"""
         with patch.dict(sys.modules, {"datadog_api_client": None}):
-            result = await plugin._query_metrics(
-                {"query": "avg:system.cpu.user{*}", "from_ts": 1000, "to_ts": 2000}
-            )
+            result = await plugin._query_metrics({"query": "avg:system.cpu.user{*}", "from_ts": 1000, "to_ts": 2000})
             assert result.is_error is True
             assert "datadog-api-client" in result.content
 
