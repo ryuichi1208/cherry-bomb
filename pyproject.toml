@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cherry-bomb"
+version = "0.1.0"
+description = "SRE AI Agent for incident response and operational automation"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.42.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "slack-bolt>=1.21.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "boto3>=1.36.0",
+    "structlog>=24.4.0",
+    "typer>=0.15.0",
+    "httpx>=0.28.0",
+    "aiohttp>=3.13.3",
+]
+
+[project.optional-dependencies]
+plugins-datadog = ["datadog-api-client>=2.32.0"]
+plugins-pagerduty = ["pdpyras>=5.2.0"]
+plugins-kubernetes = ["kubernetes>=31.0.0"]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.14.0",
+    "ruff>=0.9.0",
+    "moto>=5.0.0",
+    "respx>=0.22.0",
+]
+
+[project.scripts]
+cherry-bomb = "cherry_bomb.interfaces.cli.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cherry_bomb"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "SIM", "TCH"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
