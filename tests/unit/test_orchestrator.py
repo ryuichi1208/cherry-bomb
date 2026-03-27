@@ -5,7 +5,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from cherry_bomb.agent.orchestrator import AgentOrchestrator, AgentResponse
-from cherry_bomb.models.schemas import ToolDefinition, ToolParameterProperty, ToolParameters, ToolResult
+from cherry_bomb.decision.store import SQLiteDecisionStore
+from cherry_bomb.models.schemas import (
+    ToolDefinition,
+    ToolParameterProperty,
+    ToolParameters,
+    ToolResult,
+    TurnAction,
+)
 from cherry_bomb.plugins.base import ToolPlugin
 from cherry_bomb.plugins.registry import PluginRegistry
 
@@ -81,12 +88,15 @@ def _make_settings() -> MagicMock:
     return settings
 
 
-def _make_orchestrator(registry: PluginRegistry | None = None) -> AgentOrchestrator:
+def _make_orchestrator(
+    registry: PluginRegistry | None = None,
+    decision_store: SQLiteDecisionStore | None = None,
+) -> AgentOrchestrator:
     settings = _make_settings()
     if registry is None:
         registry = PluginRegistry()
         registry.register(FakePlugin())
-    return AgentOrchestrator(settings=settings, registry=registry)
+    return AgentOrchestrator(settings=settings, registry=registry, decision_store=decision_store)
 
 
 # --- Tests ---
@@ -261,9 +271,7 @@ class TestExtractText:
         assert AgentOrchestrator._extract_text(response) == "hello"
 
     def test_multiple_text_blocks(self) -> None:
-        response = FakeResponse(
-            content=[FakeTextBlock(text="line1"), FakeTextBlock(text="line2")]
-        )
+        response = FakeResponse(content=[FakeTextBlock(text="line1"), FakeTextBlock(text="line2")])
         assert AgentOrchestrator._extract_text(response) == "line1\nline2"
 
     def test_mixed_blocks(self) -> None:
@@ -277,7 +285,113 @@ class TestExtractText:
         assert AgentOrchestrator._extract_text(response) == "before tool\nafter tool"
 
     def test_no_text_blocks(self) -> None:
-        response = FakeResponse(
-            content=[FakeToolUseBlock(name="test", id="t1")]
-        )
+        response = FakeResponse(content=[FakeToolUseBlock(name="test", id="t1")])
         assert AgentOrchestrator._extract_text(response) == ""
+
+
+class TestDecisionRecording:
+    @pytest.fixture
+    async def decision_store(self) -> SQLiteDecisionStore:
+        store = SQLiteDecisionStore(db_path=":memory:")
+        await store.initialize()
+        return store
+
+    @pytest.mark.asyncio()
+    async def test_end_turn_records_decision(self, decision_store: SQLiteDecisionStore) -> None:
+        """end_turnの場合、FINAL_ANSWERのTurnRecordが保存される"""
+        orchestrator = _make_orchestrator(decision_store=decision_store)
+
+        fake_response = FakeResponse(
+            content=[FakeTextBlock(text="CPUは正常です。")],
+            stop_reason="end_turn",
+        )
+
+        with patch.object(orchestrator._client.messages, "create", new_callable=AsyncMock) as mock_create:
+            mock_create.return_value = fake_response
+            await orchestrator.run("CPUの状態を教えて")
+
+        results = await decision_store.search("CPU")
+        assert len(results) == 1
+        record = results[0]
+        assert record.user_message == "CPUの状態を教えて"
+        assert record.final_answer == "CPUは正常です。"
+        assert len(record.turns) == 1
+        assert record.turns[0].action == TurnAction.FINAL_ANSWER
+        assert record.turns[0].reasoning == "CPUは正常です。"
+
+    @pytest.mark.asyncio()
+    async def test_tool_use_records_decision(self, decision_store: SQLiteDecisionStore) -> None:
+        """tool_use→end_turnフローでツール呼び出しと最終回答の両方が記録される"""
+        orchestrator = _make_orchestrator(decision_store=decision_store)
+
+        tool_use_response = FakeResponse(
+            content=[
+                FakeTextBlock(text="メトリクスを確認します"),
+                FakeToolUseBlock(name="fake_read", id="toolu_100", input={"q": "cpu"}),
+            ],
+            stop_reason="tool_use",
+        )
+        final_response = FakeResponse(
+            content=[FakeTextBlock(text="CPU使用率は30%です。")],
+            stop_reason="end_turn",
+        )
+
+        with patch.object(orchestrator._client.messages, "create", new_callable=AsyncMock) as mock_create:
+            mock_create.side_effect = [tool_use_response, final_response]
+            await orchestrator.run("CPUのメトリクスを取得して")
+
+        results = await decision_store.search("CPU")
+        assert len(results) == 1
+        record = results[0]
+        assert len(record.turns) == 2
+        # Turn 0: tool call
+        assert record.turns[0].action == TurnAction.TOOL_CALL
+        assert record.turns[0].tool_name == "fake_read"
+        assert record.turns[0].reasoning == "メトリクスを確認します"
+        assert "result of fake_read" in record.turns[0].tool_result_summary
+        # Turn 1: final answer
+        assert record.turns[1].action == TurnAction.FINAL_ANSWER
+
+    @pytest.mark.asyncio()
+    async def test_approval_wait_records_decision(self, decision_store: SQLiteDecisionStore) -> None:
+        """承認待ちのツール呼び出しがAPPROVAL_WAITとして記録される"""
+        orchestrator = _make_orchestrator(decision_store=decision_store)
+
+        tool_use_response = FakeResponse(
+            content=[
+                FakeTextBlock(text="再起動が必要です"),
+                FakeToolUseBlock(name="fake_write", id="toolu_200", input={"t": "server-1"}),
+            ],
+            stop_reason="tool_use",
+        )
+        final_response = FakeResponse(
+            content=[FakeTextBlock(text="承認をお待ちしています。")],
+            stop_reason="end_turn",
+        )
+
+        with patch.object(orchestrator._client.messages, "create", new_callable=AsyncMock) as mock_create:
+            mock_create.side_effect = [tool_use_response, final_response]
+            await orchestrator.run("サーバーを再起動して")
+
+        results = await decision_store.search("再起動")
+        assert len(results) == 1
+        record = results[0]
+        assert record.turns[0].action == TurnAction.APPROVAL_WAIT
+        assert record.turns[0].tool_name == "fake_write"
+        assert record.turns[0].approval_required is True
+
+    @pytest.mark.asyncio()
+    async def test_no_decision_store_does_not_fail(self) -> None:
+        """decision_storeがNoneの場合でも正常に動作する"""
+        orchestrator = _make_orchestrator(decision_store=None)
+
+        fake_response = FakeResponse(
+            content=[FakeTextBlock(text="OK")],
+            stop_reason="end_turn",
+        )
+
+        with patch.object(orchestrator._client.messages, "create", new_callable=AsyncMock) as mock_create:
+            mock_create.return_value = fake_response
+            result = await orchestrator.run("test")
+
+        assert result.text == "OK"

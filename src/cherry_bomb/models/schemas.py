@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import StrEnum
 from typing import Any
 
@@ -56,3 +57,36 @@ class ApprovalStatus(StrEnum):
     APPROVED = "approved"
     REJECTED = "rejected"
     EXPIRED = "expired"
+
+
+class TurnAction(StrEnum):
+    """エージェントのターンアクション種別"""
+
+    TOOL_CALL = "tool_call"
+    FINAL_ANSWER = "final_answer"
+    APPROVAL_WAIT = "approval_wait"
+    MAX_TURNS = "max_turns"
+
+
+class TurnRecord(BaseModel):
+    """1ターン内の意思決定記録"""
+
+    turn_number: int
+    reasoning: str
+    action: TurnAction
+    tool_name: str | None = None
+    tool_parameters: dict[str, Any] = Field(default_factory=dict)
+    tool_result_summary: str = ""
+    approval_required: bool = False
+
+
+class DecisionRecord(BaseModel):
+    """エージェントの1セッション内の意思決定記録"""
+
+    session_id: str
+    timestamp: datetime
+    user_message: str
+    channel: str = ""
+    user_id: str = ""
+    turns: list[TurnRecord] = Field(default_factory=list)
+    final_answer: str = ""

@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     DYNAMODB_TABLE_NAME: str = "cherry-bomb-approvals"
     SQS_QUEUE_URL: str | None = None
 
+    # Decision log
+    DECISION_DB_PATH: str = "data/decisions.db"
+
     # Logging
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: LogFormat = LogFormat.json

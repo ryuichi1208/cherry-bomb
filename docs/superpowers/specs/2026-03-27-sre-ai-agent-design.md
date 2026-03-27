@@ -239,9 +239,16 @@ cherry-bomb/
 │       │   │   ├── handler.py
 │       │   │   ├── blocks.py
 │       │   │   └── interactions.py
+│       │   ├── mcp/
+│       │   │   ├── __init__.py
+│       │   │   ├── server.py        # MCP サーバー (Claude Code 連携)
+│       │   │   └── run.py           # stdio エントリポイント
 │       │   └── cli/
 │       │       ├── __init__.py
 │       │       └── app.py
+│       ├── decision/
+│       │   ├── __init__.py
+│       │   └── store.py            # SQLite意思決定ログ
 │       ├── approval/
 │       │   ├── __init__.py
 │       │   ├── manager.py
@@ -254,6 +261,7 @@ cherry-bomb/
 │       │   ├── builtin/
 │       │   │   ├── __init__.py
 │       │   │   ├── datadog.py
+│       │   │   ├── decision.py      # 意思決定ログ照会
 │       │   │   ├── pagerduty.py
 │       │   │   ├── kubernetes.py
 │       │   │   └── aws.py
@@ -298,6 +306,8 @@ cherry-bomb/
 | 型チェック | mypy (strict) | SREツールとして信頼性重視 |
 | Linter | ruff | 高速、包括的 |
 | テスト | pytest + moto + respx | AWSモック + HTTPモック |
+| 意思決定ログ | aiosqlite | 軽量SQLite、Phase 1に最適 |
+| MCP | mcp (Python SDK) | Claude Code連携、stdioトランスポート |
 | インフラ | AWS CDK (Python) | Pythonで統一 |
 
 ## 承認フローの安全性設計
@@ -314,7 +324,7 @@ cherry-bomb/
 
 Slack → Claude → Datadog読み取りの基本フローを動かす。
 
-実装対象: `config.py`, `main.py`, `agent/orchestrator.py`, `plugins/base.py`, `plugins/registry.py`, `plugins/builtin/datadog.py`, `interfaces/slack/handler.py`, `Dockerfile`, `docker-compose.yml`
+実装対象: `config.py`, `main.py`, `agent/orchestrator.py`, `plugins/base.py`, `plugins/registry.py`, `plugins/builtin/datadog.py`, `interfaces/slack/handler.py`, `decision/store.py`, `plugins/builtin/decision.py`, `interfaces/mcp/server.py`, `Dockerfile`, `docker-compose.yml`
 
 ### Phase 2: 承認フロー
 

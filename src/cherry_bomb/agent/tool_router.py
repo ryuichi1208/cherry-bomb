@@ -27,9 +27,7 @@ class ToolRouter:
     def __init__(self, registry: PluginRegistry) -> None:
         self._registry = registry
 
-    async def route(
-        self, tool_name: str, tool_use_id: str, parameters: dict[str, Any]
-    ) -> ToolResult:
+    async def route(self, tool_name: str, tool_use_id: str, parameters: dict[str, Any]) -> ToolResult:
         """ツール呼び出しをルーティングする。
 
         読み取り系: 直接実行して結果を返す
@@ -50,9 +48,7 @@ class ToolRouter:
         plugin, needs_approval = self._registry.resolve_tool(tool_name)
 
         if needs_approval:
-            logger.info(
-                "approval_required", tool_name=tool_name, parameters=parameters
-            )
+            logger.info("approval_required", tool_name=tool_name, parameters=parameters)
             raise ApprovalRequiredError(tool_name=tool_name, parameters=parameters)
 
         logger.info("executing_tool", tool_name=tool_name, plugin=plugin.name)
@@ -61,9 +57,7 @@ class ToolRouter:
             result.tool_use_id = tool_use_id
             return result
         except Exception as e:
-            logger.error(
-                "tool_execution_failed", tool_name=tool_name, error=str(e)
-            )
+            logger.error("tool_execution_failed", tool_name=tool_name, error=str(e))
             return ToolResult(
                 tool_use_id=tool_use_id,
                 content=f"Error executing {tool_name}: {e}",

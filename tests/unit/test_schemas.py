@@ -15,9 +15,7 @@ class TestToolParameterProperty:
         assert prop.enum is None
 
     def test_property_with_enum(self) -> None:
-        prop = ToolParameterProperty(
-            type="string", description="Priority", enum=["high", "low"]
-        )
+        prop = ToolParameterProperty(type="string", description="Priority", enum=["high", "low"])
         assert prop.enum == ["high", "low"]
 
 
@@ -29,9 +27,7 @@ class TestToolParameters:
 
     def test_with_properties(self) -> None:
         params = ToolParameters(
-            properties={
-                "query": ToolParameterProperty(type="string", description="Search query")
-            },
+            properties={"query": ToolParameterProperty(type="string", description="Search query")},
             required=["query"],
         )
         assert "query" in params.properties
