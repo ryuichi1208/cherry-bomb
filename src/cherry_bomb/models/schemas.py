@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -49,7 +49,7 @@ class ToolResult(BaseModel):
         }
 
 
-class ApprovalStatus(str, Enum):
+class ApprovalStatus(StrEnum):
     """承認ステータス"""
 
     PENDING = "pending"

@@ -10,7 +10,7 @@ from cherry_bomb.plugins.registry import PluginRegistry
 logger = structlog.get_logger()
 
 
-class ApprovalRequired(Exception):
+class ApprovalRequiredError(Exception):
     """承認が必要な操作の場合に発生する例外"""
 
     def __init__(self, tool_name: str, parameters: dict[str, Any]) -> None:
@@ -31,7 +31,7 @@ class ToolRouter:
         """ツール呼び出しをルーティングする。
 
         読み取り系: 直接実行して結果を返す
-        変更系: ApprovalRequired例外を発生させる
+        変更系: ApprovalRequiredError例外を発生させる
 
         Args:
             tool_name: ツール名
@@ -42,7 +42,7 @@ class ToolRouter:
             ToolResult
 
         Raises:
-            ApprovalRequired: 承認が必要な操作の場合
+            ApprovalRequiredError: 承認が必要な操作の場合
             ToolNotFoundError: ツールが見つからない場合
         """
         plugin, needs_approval = self._registry.resolve_tool(tool_name)
@@ -51,7 +51,7 @@ class ToolRouter:
             logger.info(
                 "approval_required", tool_name=tool_name, parameters=parameters
             )
-            raise ApprovalRequired(tool_name=tool_name, parameters=parameters)
+            raise ApprovalRequiredError(tool_name=tool_name, parameters=parameters)
 
         logger.info("executing_tool", tool_name=tool_name, plugin=plugin.name)
         try:

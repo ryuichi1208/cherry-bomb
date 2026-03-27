@@ -186,7 +186,10 @@ class DatadogPlugin(ToolPlugin):
         except ImportError:
             return ToolResult(
                 tool_use_id="",
-                content="datadog-api-client がインストールされていません。`pip install cherry-bomb[plugins-datadog]` を実行してください。",
+                content=(
+                    "datadog-api-client がインストールされていません。"
+                    "`pip install cherry-bomb[plugins-datadog]` を実行してください。"
+                ),
                 is_error=True,
             )
 

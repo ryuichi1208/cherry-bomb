@@ -1,12 +1,12 @@
 """Application configuration using pydantic-settings."""
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
 
-class LogFormat(str, Enum):
+class LogFormat(StrEnum):
     """Log format choices."""
 
     json = "json"

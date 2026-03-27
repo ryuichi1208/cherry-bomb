@@ -6,7 +6,7 @@ import anthropic
 import structlog
 
 from cherry_bomb.agent.prompts import build_system_prompt
-from cherry_bomb.agent.tool_router import ApprovalRequired, ToolRouter
+from cherry_bomb.agent.tool_router import ApprovalRequiredError, ToolRouter
 from cherry_bomb.config import Settings
 from cherry_bomb.plugins.registry import PluginRegistry
 
@@ -82,7 +82,7 @@ class AgentOrchestrator:
                                 parameters=block.input,
                             )
                             tool_results.append(result.to_claude_format())
-                        except ApprovalRequired as e:
+                        except ApprovalRequiredError as e:
                             pending_approvals.append(
                                 {
                                     "tool_name": e.tool_name,

@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from cherry_bomb.agent.tool_router import ApprovalRequired, ToolRouter
+from cherry_bomb.agent.tool_router import ApprovalRequiredError, ToolRouter
 from cherry_bomb.models.schemas import ToolDefinition, ToolParameterProperty, ToolParameters, ToolResult
 from cherry_bomb.plugins.base import ToolPlugin
 from cherry_bomb.plugins.registry import PluginRegistry, ToolNotFoundError
@@ -73,8 +73,8 @@ class TestToolRouter:
 
     @pytest.mark.asyncio()
     async def test_route_write_tool_raises_approval_required(self, router: ToolRouter) -> None:
-        """変更系ツールはApprovalRequired例外を発生させる"""
-        with pytest.raises(ApprovalRequired) as exc_info:
+        """変更系ツールはApprovalRequiredError例外を発生させる"""
+        with pytest.raises(ApprovalRequiredError) as exc_info:
             await router.route("fake_write", "toolu_002", {"target": "server-1"})
         assert exc_info.value.tool_name == "fake_write"
         assert exc_info.value.parameters == {"target": "server-1"}
@@ -106,9 +106,9 @@ class TestToolRouter:
         plugin.execute = original_execute  # type: ignore[method-assign]
 
 
-class TestApprovalRequired:
+class TestApprovalRequiredError:
     def test_exception_attributes(self) -> None:
-        exc = ApprovalRequired("restart_service", {"service": "web"})
+        exc = ApprovalRequiredError("restart_service", {"service": "web"})
         assert exc.tool_name == "restart_service"
         assert exc.parameters == {"service": "web"}
         assert "restart_service" in str(exc)

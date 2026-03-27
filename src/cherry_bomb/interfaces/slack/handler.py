@@ -1,5 +1,7 @@
 """Slack Bolt event handler"""
 
+import contextlib
+
 import structlog
 from slack_bolt.async_app import AsyncApp
 from slack_sdk.web.async_client import AsyncWebClient
@@ -23,14 +25,12 @@ def register_handlers(app: AsyncApp, orchestrator: AgentOrchestrator) -> None:
         logger.info("slack_mention_received", user=user, channel=channel)
 
         # 考え中の反応を追加
-        try:
+        with contextlib.suppress(Exception):
             await client.reactions_add(
                 channel=channel,
                 timestamp=event["ts"],
                 name="hourglass_flowing_sand",
             )
-        except Exception:
-            pass  # リアクション失敗は無視
 
         try:
             response = await orchestrator.run(
@@ -57,7 +57,7 @@ def register_handlers(app: AsyncApp, orchestrator: AgentOrchestrator) -> None:
             )
         finally:
             # 完了リアクションに変更
-            try:
+            with contextlib.suppress(Exception):
                 await client.reactions_remove(
                     channel=channel,
                     timestamp=event["ts"],
@@ -68,8 +68,6 @@ def register_handlers(app: AsyncApp, orchestrator: AgentOrchestrator) -> None:
                     timestamp=event["ts"],
                     name="white_check_mark",
                 )
-            except Exception:
-                pass
 
     @app.event("message")
     async def handle_message(event: dict) -> None:

@@ -79,18 +79,20 @@ class TestCreateApp:
         mock_handler_cls.return_value = MagicMock()
 
         with patch("cherry_bomb.main.register_handlers") as mock_register:
-            app = create_app(settings=mock_settings)
+            create_app(settings=mock_settings)
             mock_register.assert_called_once_with(mock_slack_app, mock_orch_cls.return_value)
 
     @patch("cherry_bomb.main.create_slack_app")
     @patch("cherry_bomb.main.AsyncSlackRequestHandler")
     @patch("cherry_bomb.main.AgentOrchestrator")
-    def test_creates_orchestrator_with_settings(self, mock_orch_cls, mock_handler_cls, mock_create_slack, mock_settings):
+    def test_creates_orchestrator_with_settings(
+        self, mock_orch_cls, mock_handler_cls, mock_create_slack, mock_settings
+    ):
         """AgentOrchestrator が正しい引数で作成されること"""
         mock_create_slack.return_value = MagicMock()
         mock_handler_cls.return_value = MagicMock()
 
-        app = create_app(settings=mock_settings)
+        create_app(settings=mock_settings)
 
         mock_orch_cls.assert_called_once()
         call_kwargs = mock_orch_cls.call_args
