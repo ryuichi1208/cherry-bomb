@@ -50,7 +50,7 @@ class MyPlugin(ToolPlugin):
 
 ## Tech Stack
 
-- Python 3.12+ / uv
+- Python 3.14+ / uv
 - Claude API (Tool Use)
 - FastAPI + Slack Bolt
 - Pydantic v2 / structlog
